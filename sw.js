@@ -1,4 +1,4 @@
-const CACHE = 'baraa-os-v1';
+const CACHE = 'baraa-os-v2';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/apple-touch-icon.png'];
 
 self.addEventListener('install', (e) => {
@@ -14,7 +14,7 @@ self.addEventListener('activate', (e) => {
 });
 
 self.addEventListener('fetch', (e) => {
-  if (e.request.method !== 'GET') return;
+  if (e.request.method !== 'GET' || new URL(e.request.url).origin !== self.location.origin) return;
   e.respondWith(
     fetch(e.request)
       .then((res) => {
@@ -22,19 +22,30 @@ self.addEventListener('fetch', (e) => {
         caches.open(CACHE).then((c) => c.put(e.request, copy)).catch(() => {});
         return res;
       })
-      .catch(() => caches.match(e.request))
+      .catch(() => caches.match(e.request, { ignoreSearch: true }))
   );
 });
 
-// Real push from the backend will arrive here later.
+// Push from the server: { title, body, url, tag }
 self.addEventListener('push', (e) => {
   const data = e.data ? e.data.json() : { title: 'Baraa OS', body: 'New notification' };
-  e.waitUntil(self.registration.showNotification(data.title, { body: data.body, icon: 'icons/icon-192.png' }));
+  e.waitUntil(self.registration.showNotification(data.title, {
+    body: data.body,
+    icon: 'icons/icon-192.png',
+    tag: data.tag,
+    data: { url: data.url || './' }
+  }));
 });
 
+// Tapping a notification opens its task sheet
 self.addEventListener('notificationclick', (e) => {
   e.notification.close();
-  e.waitUntil(
-    self.clients.matchAll({ type: 'window' }).then((list) => (list[0] ? list[0].focus() : self.clients.openWindow('./')))
-  );
+  const url = new URL((e.notification.data && e.notification.data.url) || './', self.registration.scope).href;
+  e.waitUntil((async () => {
+    const list = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+    for (const c of list) {
+      if ('navigate' in c) { try { await c.navigate(url); return c.focus(); } catch (err) {} }
+    }
+    return self.clients.openWindow(url);
+  })());
 });

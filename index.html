@@ -31,9 +31,50 @@ button{font:inherit;font-size:16px;font-weight:500;height:52px;border-radius:16p
 button:disabled{opacity:.4}
 ol{margin:0;padding-left:20px;color:var(--sub);line-height:1.7}
 .log{font-size:13px;color:var(--sub);min-height:1.5em}
+[hidden]{display:none!important}
+main{display:flex;flex-direction:column;gap:18px}
+.sheet{gap:12px;padding:20px;border-radius:26px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.chip{font-size:11px;padding:3px 9px;border-radius:8px;background:var(--line);color:var(--fg)}
+.sheet h2{margin:0;font-size:22px;font-weight:500;line-height:1.25}
+.sheet .date{font-size:14px;color:var(--sub)}
+.choices{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+.choices button{height:50px;border-radius:14px;font-size:16px}
+.choices button.alt,.alt{background:var(--card);color:var(--fg);border:1px solid var(--line)}
+textarea{font:inherit;font-size:15px;border-radius:14px;border:1px solid var(--line);padding:10px 12px;background:var(--bg);color:var(--fg);resize:none;width:100%}
+.result{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;background:var(--bg)}
+.tick{width:30px;height:30px;border-radius:50%;background:var(--inv);color:var(--invfg);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.result b{font-weight:500;display:block}
+.result span{font-size:13px;color:var(--sub)}
+.err{font-size:13px;color:#C0392B}
+a.back{color:var(--sub);font-size:14px;text-decoration:none}
 </style>
 </head>
 <body>
+  <section id="sheetView" hidden>
+    <a class="back" href="./">← Baraa OS</a>
+    <div class="card sheet" style="margin-top:14px">
+      <div class="chips" id="sheetChips"></div>
+      <h2 id="sheetTitle">Loading…</h2>
+      <div class="date" id="sheetDate"></div>
+      <div class="choices" id="sheetChoices"></div>
+      <div id="noteBox" hidden>
+        <label for="noteText" class="date">Note (saved to Notes in Notion)</label>
+        <textarea id="noteText" rows="3" placeholder="Write a note"></textarea>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button id="noteSave" type="button" style="flex:1">Save note</button>
+          <button id="noteCancel" type="button" class="alt" style="flex:1">Cancel</button>
+        </div>
+      </div>
+      <div class="result" id="sheetResult" hidden>
+        <span class="tick" aria-hidden="true">✓</span>
+        <div><b id="resultTitle"></b><span id="resultSub"></span></div>
+      </div>
+      <div class="err" id="sheetErr" role="alert"></div>
+    </div>
+  </section>
+
+  <main id="homeView">
   <div>
     <h1>Baraa OS</h1>
     <p>Install test build</p>
@@ -61,6 +102,7 @@ ol{margin:0;padding-left:20px;color:var(--sub);line-height:1.7}
     <button id="notifBtn" type="button">Send test notification</button>
     <div id="log" class="log" aria-live="polite"></div>
   </div>
+  </main>
 
 <script>
   const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
@@ -136,6 +178,72 @@ ol{margin:0;padding-left:20px;color:var(--sub);line-height:1.7}
       pushLog("Couldn't register: " + e.message);
     }
   });
+
+  // Quick-action sheet: opened from a notification link (?t=...)
+  const ACTION_URL = SUPABASE_URL + '/functions/v1/task-action';
+  const token = new URLSearchParams(location.search).get('t');
+  const $ = (id) => document.getElementById(id);
+
+  function showResult(r) {
+    $('sheetChoices').hidden = true;
+    $('noteBox').hidden = true;
+    $('resultTitle').textContent = r.title;
+    $('resultSub').textContent = r.sub;
+    $('sheetResult').hidden = false;
+  }
+  function renderTask(task) {
+    $('sheetTitle').textContent = task.title;
+    $('sheetDate').textContent = task.dateText;
+    $('sheetTitle').style.textDecoration = task.checked ? 'line-through' : 'none';
+    const chips = [task.area].concat(task.types || []).filter((x, i, a) => x && a.indexOf(x) === i);
+    $('sheetChips').innerHTML = '';
+    chips.forEach((c) => { const s = document.createElement('span'); s.className = 'chip'; s.textContent = c; $('sheetChips').appendChild(s); });
+  }
+  async function act(action, note) {
+    $('sheetErr').textContent = '';
+    const btns = document.querySelectorAll('#sheetChoices button, #noteSave');
+    btns.forEach((b) => (b.disabled = true));
+    try {
+      const res = await fetch(ACTION_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ t: token, action, note }) });
+      const j = await res.json();
+      if (!res.ok) throw new Error(j.error || 'Something went wrong. Try again.');
+      renderTask(j.task);
+      showResult(j.result);
+    } catch (e) {
+      $('sheetErr').textContent = e.message;
+    } finally {
+      btns.forEach((b) => (b.disabled = false));
+    }
+  }
+
+  if (token) {
+    $('homeView').hidden = true;
+    $('sheetView').hidden = false;
+    fetch(ACTION_URL + '?t=' + encodeURIComponent(token)).then((r) => r.json().then((j) => ({ ok: r.ok, j }))).then(({ ok, j }) => {
+      if (!ok) { $('sheetTitle').textContent = 'Can’t open this task'; $('sheetErr').textContent = j.error; return; }
+      renderTask(j.task);
+      if (j.task.checked) { showResult({ title: 'Already done', sub: 'Check is ticked in Notion' }); return; }
+      j.choices.forEach((c, i) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.textContent = c.label;
+        if (i > 0) b.className = 'alt';
+        b.addEventListener('click', () => {
+          if (c.id === 'note') { $('sheetChoices').hidden = true; $('noteBox').hidden = false; $('noteText').focus(); }
+          else act(c.id);
+        });
+        $('sheetChoices').appendChild(b);
+      });
+    }).catch(() => { $('sheetErr').textContent = 'No connection. Check your internet and reopen the notification.'; });
+
+    $('noteSave').addEventListener('click', () => {
+      const n = $('noteText').value.trim();
+      if (!n) { $('sheetErr').textContent = 'Write a note first.'; return; }
+      act('note', n);
+    });
+    $('noteText').addEventListener('input', () => { $('sheetErr').textContent = ''; });
+    $('noteCancel').addEventListener('click', () => { $('noteBox').hidden = true; $('sheetChoices').hidden = false; $('sheetErr').textContent = ''; });
+  }
 </script>
 </body>
 </html>
