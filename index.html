@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Baraa OS</title>
+<meta name="theme-color" content="#0A0A0A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Baraa OS">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500&display=swap">
+<style>
+:root{--bg:#F4F4F4;--card:#FFFFFF;--fg:#0A0A0A;--sub:#666;--line:#E3E3E3;--inv:#0A0A0A;--invfg:#FFF;color-scheme:light}
+@media (prefers-color-scheme: dark){:root{--bg:#0A0A0A;--card:#161616;--fg:#F5F5F5;--sub:#A3A3A3;--line:#2A2A2A;--inv:#FFF;--invfg:#0A0A0A;color-scheme:dark}}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:'Lexend',system-ui,-apple-system,sans-serif;
+  padding:calc(env(safe-area-inset-top) + 32px) 20px calc(env(safe-area-inset-bottom) + 24px);display:flex;flex-direction:column;gap:18px}
+h1{margin:0;font-size:28px;font-weight:500}
+p{margin:0;color:var(--sub);line-height:1.5}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px;display:flex;flex-direction:column;gap:10px}
+.status{display:flex;align-items:center;gap:10px;font-weight:500}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--sub)}
+.ok .dot{background:var(--fg)}
+button{font:inherit;font-size:16px;font-weight:500;height:52px;border-radius:16px;border:none;background:var(--inv);color:var(--invfg);cursor:pointer}
+button:disabled{opacity:.4}
+ol{margin:0;padding-left:20px;color:var(--sub);line-height:1.7}
+#log{font-size:13px;color:var(--sub);min-height:1.5em}
+</style>
+</head>
+<body>
+  <div>
+    <h1>Baraa OS</h1>
+    <p>Install test build</p>
+  </div>
+
+  <div class="card" id="installCard">
+    <div class="status" id="mode"><span class="dot"></span><span id="modeText">Checking…</span></div>
+    <ol id="steps">
+      <li>Tap the Share button in Safari</li>
+      <li>Choose <b>Add to Home Screen</b></li>
+      <li>Open Baraa OS from your Home Screen</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <div class="status">Notification test</div>
+    <p id="notifHelp">Works only after the app is opened from the Home Screen (iOS 16.4 or later).</p>
+    <button id="notifBtn" type="button">Send test notification</button>
+    <div id="log" aria-live="polite"></div>
+  </div>
+
+<script>
+  const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  const modeEl = document.getElementById('mode');
+  document.getElementById('modeText').textContent = standalone ? 'Running as an installed app' : 'Running in the browser';
+  if (standalone) { modeEl.classList.add('ok'); document.getElementById('steps').hidden = true; }
+
+  let reg = null;
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').then((r) => { reg = r; }).catch((e) => log('Service worker failed: ' + e.message));
+  }
+
+  const btn = document.getElementById('notifBtn');
+  const log = (m) => { document.getElementById('log').textContent = m; };
+  if (!standalone) btn.disabled = true;
+
+  btn.addEventListener('click', async () => {
+    if (!('Notification' in window)) { log('This iOS version does not support web notifications. Update to iOS 16.4 or later.'); return; }
+    const perm = await Notification.requestPermission();
+    if (perm !== 'granted') { log('Notifications are blocked. Allow them in Settings → Notifications → Baraa OS.'); return; }
+    const r = reg || await navigator.serviceWorker.ready;
+    await r.showNotification('Study M1 starts at 3:00 PM', { body: 'Academic · runs until 6:45 PM', icon: 'icons/icon-192.png' });
+    log('Sent. If no banner showed, check Notification Center, Focus mode and Settings → Notifications → Baraa OS.');
+  });
+</script>
+</body>
+</html>
