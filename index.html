@@ -30,7 +30,7 @@ p{margin:0;color:var(--sub);line-height:1.5}
 button{font:inherit;font-size:16px;font-weight:500;height:52px;border-radius:16px;border:none;background:var(--inv);color:var(--invfg);cursor:pointer}
 button:disabled{opacity:.4}
 ol{margin:0;padding-left:20px;color:var(--sub);line-height:1.7}
-#log{font-size:13px;color:var(--sub);min-height:1.5em}
+.log{font-size:13px;color:var(--sub);min-height:1.5em}
 </style>
 </head>
 <body>
@@ -49,10 +49,17 @@ ol{margin:0;padding-left:20px;color:var(--sub);line-height:1.7}
   </div>
 
   <div class="card">
+    <div class="status" id="pushStatus"><span class="dot"></span><span id="pushText">Automatic notifications: off</span></div>
+    <p>Lets the server send reminders from your tasks, even when the app is closed.</p>
+    <button id="pushBtn" type="button">Turn on automatic notifications</button>
+    <div id="pushLog" class="log" aria-live="polite"></div>
+  </div>
+
+  <div class="card">
     <div class="status">Notification test</div>
     <p id="notifHelp">Works only after the app is opened from the Home Screen (iOS 16.4 or later).</p>
     <button id="notifBtn" type="button">Send test notification</button>
-    <div id="log" aria-live="polite"></div>
+    <div id="log" class="log" aria-live="polite"></div>
   </div>
 
 <script>
@@ -77,6 +84,57 @@ ol{margin:0;padding-left:20px;color:var(--sub);line-height:1.7}
     const r = reg || await navigator.serviceWorker.ready;
     await r.showNotification('Study M1 starts at 3:00 PM', { body: 'Academic · runs until 6:45 PM', icon: 'icons/icon-192.png' });
     log('Sent. If no banner showed, check Notification Center, Focus mode and Settings → Notifications → Baraa OS.');
+  });
+
+  // Automatic (server) push
+  const SUPABASE_URL = 'https://arfqsuawppydcgwzucjo.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_m-D8YW8KF5JRgBurjuP3Gw_ANMv04S3';
+  const VAPID_PUBLIC = 'BCe3QDPBXKzd_EIDEnwSIz6TvFT1hwBjXTjSp5K-PNN7oC7cFd0qYDq_JHE9nRPFukSmPXdWw925z4Io142OchM';
+
+  const pushBtn = document.getElementById('pushBtn');
+  const pushLog = (m) => { document.getElementById('pushLog').textContent = m; };
+  const setPushOn = (on) => {
+    document.getElementById('pushText').textContent = 'Automatic notifications: ' + (on ? 'on' : 'off');
+    document.getElementById('pushStatus').classList.toggle('ok', on);
+    pushBtn.textContent = on ? 'Re-register this phone' : 'Turn on automatic notifications';
+  };
+  if (!standalone) pushBtn.disabled = true;
+
+  function keyToBytes(b64) {
+    const pad = '='.repeat((4 - (b64.length % 4)) % 4);
+    const raw = atob((b64 + pad).replace(/-/g, '+').replace(/_/g, '/'));
+    return Uint8Array.from(raw, (c) => c.charCodeAt(0));
+  }
+
+  async function saveSubscription(sub) {
+    const j = sub.toJSON();
+    const res = await fetch(SUPABASE_URL + '/rest/v1/push_subscriptions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', apikey: SUPABASE_KEY, Prefer: 'return=minimal' },
+      body: JSON.stringify({ endpoint: j.endpoint, p256dh: j.keys.p256dh, auth: j.keys.auth, user_agent: navigator.userAgent.slice(0, 200) })
+    });
+    if (res.ok || res.status === 409) return true;
+    throw new Error('Server said ' + res.status);
+  }
+
+  if ('serviceWorker' in navigator && 'PushManager' in window) {
+    navigator.serviceWorker.ready.then((r) => r.pushManager.getSubscription()).then((s) => setPushOn(!!s)).catch(() => {});
+  }
+
+  pushBtn.addEventListener('click', async () => {
+    try {
+      if (!('PushManager' in window)) { pushLog('Open the app from the Home Screen first (iOS 16.4 or later).'); return; }
+      const perm = await Notification.requestPermission();
+      if (perm !== 'granted') { pushLog('Notifications are blocked. Allow them in Settings → Notifications → Baraa OS.'); return; }
+      pushLog('Registering this phone…');
+      const r = await navigator.serviceWorker.ready;
+      const sub = (await r.pushManager.getSubscription()) || await r.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: keyToBytes(VAPID_PUBLIC) });
+      await saveSubscription(sub);
+      setPushOn(true);
+      pushLog('Done. You can close the app now; reminders will arrive on their own.');
+    } catch (e) {
+      pushLog("Couldn't register: " + e.message);
+    }
   });
 </script>
 </body>
