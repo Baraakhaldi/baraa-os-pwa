@@ -1,4 +1,4 @@
-const CACHE = 'baraa-os-v2';
+const CACHE = 'baraa-os-v3';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/apple-touch-icon.png'];
 
 self.addEventListener('install', (e) => {
