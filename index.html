@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Baraa OS</title>
-<meta name="theme-color" content="#0A0A0A">
+<meta name="theme-color" content="#F4F4F4">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -12,734 +12,181 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" href="icons/icon-192.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600&display=swap">
-<style>
-:root{
-  --bg:#F4F4F4;--card:rgba(255,255,255,.86);--solid:#FFFFFF;--fg:#0A0A0A;--sub:#666666;--line:#E3E3E3;
-  --inv:#0A0A0A;--invfg:#FFFFFF;--chip:#EDEDED;--err:#B3261E;color-scheme:light;
-  --top:env(safe-area-inset-top);--bot:env(safe-area-inset-bottom);
-}
-:root[data-theme="dark"]{
-  --bg:#0A0A0A;--card:rgba(22,22,22,.84);--solid:#161616;--fg:#F5F5F5;--sub:#A3A3A3;--line:#2A2A2A;
-  --inv:#FFFFFF;--invfg:#0A0A0A;--chip:#242424;--err:#F2B8B5;color-scheme:dark;
-}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;height:100%}
-body{background:var(--bg);color:var(--fg);font-family:'Lexend',system-ui,-apple-system,sans-serif;font-weight:400;overscroll-behavior-y:none}
-button{font:inherit;color:inherit;cursor:pointer}
-[hidden]{display:none!important}
-#silk{position:fixed;inset:0;width:100vw;height:100vh;z-index:0;pointer-events:none}
-#app{position:relative;z-index:1;min-height:100%;padding:calc(var(--top) + 20px) 20px calc(var(--bot) + 104px)}
-.view{display:flex;flex-direction:column;gap:22px;animation:fade .22s ease}
-@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-
-/* shared */
-.card{background:var(--card);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:20px}
-.round{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid var(--line);background:var(--card);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);flex-shrink:0}
-.ghost{border:none;background:transparent}
-.h{display:flex;align-items:center;gap:8px}
-.h b{font-size:17px;font-weight:500}
-.count{font-size:11px;padding:2px 8px;border-radius:10px;background:var(--chip)}
-.sub{color:var(--sub)}
-.small{font-size:12px}
-.btn{height:50px;border-radius:14px;border:none;background:var(--inv);color:var(--invfg);font-size:15px;font-weight:500;padding:0 18px}
-.btn.alt{background:var(--solid);color:var(--fg);border:1px solid var(--line)}
-.btn:disabled{opacity:.45}
-.tag{font-size:11px;padding:3px 9px;border-radius:8px;white-space:nowrap}
-.empty{font-size:13px;color:var(--sub);padding:6px 2px}
-
-/* header */
-.top{display:flex;align-items:center;gap:12px}
-.avatar{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;background:var(--inv);color:var(--invfg);border:none}
-.hello{flex:1;display:flex;flex-direction:column}
-.hello span{font-size:13px;color:var(--sub)}
-.hello b{font-size:18px;font-weight:500}
-.bar{display:flex;align-items:center;justify-content:space-between}
-.bar b{font-size:17px;font-weight:500}
-
-/* hero */
-.hero{border-radius:24px;padding:22px;display:flex;align-items:center;gap:16px;background:var(--inv);color:var(--invfg)}
-.hero .l{flex:1;display:flex;flex-direction:column;gap:14px}
-.hero p{margin:0;font-size:15px;line-height:1.4}
-.hero button{align-self:flex-start;height:40px;padding:0 18px;border-radius:12px;border:none;font-size:13px;font-weight:500;background:var(--invfg);color:var(--inv)}
-.ring{position:relative;width:84px;height:84px;flex-shrink:0}
-.ring span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:500}
-
-/* up next */
-.rail{display:flex;gap:12px;overflow-x:auto;margin:0 -20px;padding:0 20px 4px;scrollbar-width:none}
-.rail::-webkit-scrollbar{display:none}
-.next{flex-shrink:0;width:208px;padding:16px;display:flex;flex-direction:column;gap:10px;text-align:left}
-.next .t{font-size:14px;font-weight:500;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.next .w{font-size:12px;color:var(--sub)}
-
-/* areas */
-.area{display:flex;align-items:center;gap:14px;padding:14px 16px;text-align:left;width:100%}
-.area .ic{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;flex-shrink:0}
-.area .m{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
-.area .m b{font-size:14px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.mini{position:relative;width:44px;height:44px;flex-shrink:0}
-.mini span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500}
-
-/* tasks */
-.days{display:flex;gap:8px;overflow-x:auto;margin:0 -20px;padding:0 20px 2px;scrollbar-width:none;scroll-snap-type:x proximity}
-.days::-webkit-scrollbar{display:none}
-.day{flex:0 0 58px;height:76px;border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:1px solid var(--line);background:var(--card);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);scroll-snap-align:center;position:relative}
-.day span{font-size:10px}.day b{font-size:17px;font-weight:500}
-.day.on{background:var(--inv);color:var(--invfg);border-color:var(--inv)}
-.day i{position:absolute;bottom:7px;width:4px;height:4px;border-radius:50%;background:currentColor;opacity:.6}
-.filters{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}
-.filters::-webkit-scrollbar{display:none}
-.f{flex-shrink:0;height:36px;padding:0 16px;border-radius:10px;font-size:13px;border:none;background:var(--chip)}
-.f.on{background:var(--inv);color:var(--invfg)}
-.f.x{display:flex;align-items:center;gap:6px}
-.list{display:flex;flex-direction:column;gap:12px}
-.task{display:flex;align-items:flex-start;gap:6px;padding:10px 16px 16px 6px}
-.cb{flex-shrink:0;width:44px;height:44px;padding:0;border:none;background:transparent;display:flex;align-items:center;justify-content:center}
-.cb span{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;border:1.5px solid var(--sub);transition:background .15s,border-color .15s}
-.cb svg{opacity:0;transition:opacity .15s}
-.task.done .cb svg{opacity:1}
-.task .body{flex:1;min-width:0;padding-top:6px;display:flex;flex-direction:column;gap:8px}
-.task .chips{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.task .title{font-size:15px;font-weight:500;line-height:1.35;word-break:break-word}
-.task.done .title{text-decoration:line-through;color:var(--sub)}
-.task .foot{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.pill{font-size:11px;padding:4px 10px;border-radius:8px;background:var(--inv);color:var(--invfg)}
-.pill.o{background:transparent;color:var(--fg);border:1px solid var(--fg)}
-.task.busy{opacity:.6}
-.hint{font-size:11px;color:var(--sub);text-align:center}
-
-/* nav */
-nav{position:fixed;z-index:3;left:0;right:0;bottom:0;padding:0 28px var(--bot);height:calc(72px + var(--bot));display:flex;align-items:center;justify-content:space-between;background:var(--card);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);border-top:1px solid var(--line)}
-nav button{width:48px;height:48px;border:none;background:transparent;display:flex;align-items:center;justify-content:center;color:var(--sub)}
-nav button.on{color:var(--fg)}
-nav .slot{width:48px;height:48px}
-
-/* setup + sheet */
-.panel{padding:18px;display:flex;flex-direction:column;gap:12px}
-.panel p{margin:0;color:var(--sub);font-size:14px;line-height:1.5}
-.status{display:flex;align-items:center;gap:10px;font-weight:500;font-size:15px}
-.status i{width:10px;height:10px;border-radius:50%;background:var(--sub)}
-.status.ok i{background:var(--fg);box-shadow:0 0 0 3px var(--chip)}
-.log{font-size:13px;color:var(--sub);min-height:1.2em}
-ol{margin:0;padding-left:20px;color:var(--sub);line-height:1.8;font-size:14px}
-.sheet{padding:20px;border-radius:26px;display:flex;flex-direction:column;gap:12px}
-.sheet h2{margin:0;font-size:22px;font-weight:500;line-height:1.25}
-.choices{display:flex;flex-direction:column;gap:8px;margin-top:6px}
-textarea{font:inherit;font-size:16px;border-radius:14px;border:1px solid var(--line);padding:10px 12px;background:var(--solid);color:var(--fg);resize:none;width:100%}
-.result{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;background:var(--chip)}
-.tick{width:30px;height:30px;border-radius:50%;background:var(--inv);color:var(--invfg);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.result b{font-weight:500;display:block}
-.result span{font-size:13px;color:var(--sub)}
-.err{font-size:13px;color:var(--err)}
-.toast{position:fixed;z-index:5;left:20px;right:20px;bottom:calc(var(--bot) + 86px);padding:12px 16px;border-radius:14px;background:var(--inv);color:var(--invfg);font-size:14px;transition:opacity .2s,transform .2s;opacity:0;transform:translateY(8px);pointer-events:none}
-.toast.on{opacity:1;transform:none}
-.spin{width:16px;height:16px;border-radius:50%;border:2px solid var(--line);border-top-color:var(--fg);animation:r 0.8s linear infinite;display:inline-block}
-@keyframes r{to{transform:rotate(360deg)}}
-@media (prefers-reduced-motion: reduce){.view{animation:none}}
-</style>
+<link rel="preload" href="fonts/lexend-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/lexend-latin-500-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="app.css">
 </head>
 <body>
 <canvas id="silk" aria-hidden="true"></canvas>
 
 <div id="app">
 
-  <!-- HOME -->
-  <section class="view" id="v-home" hidden>
+  <!-- TODAY -->
+  <section class="view" id="v-today" hidden>
     <div class="top">
-      <button class="avatar" id="toSetup" aria-label="Settings">BK</button>
+      <button class="avatar" type="button" data-go="settings" aria-label="Settings">BK</button>
       <div class="hello"><span id="greet">Hello,</span><b>Baraa</b></div>
-      <button class="round themeBtn" aria-label="Switch dark and light theme"></button>
+      <span class="tiny sub" id="termWeek"></span>
     </div>
 
     <div class="card panel" id="linkCard" hidden>
       <div class="status"><i></i><span>Show your tasks here</span></div>
-      <p id="linkText">We'll send a link to this iPhone as a notification. Tap it and your Notion tasks appear here.</p>
+      <p id="linkText">If this iPhone already gets Baraa OS notifications, we'll send it a link. Otherwise, open Settings → Link another iPhone on a linked device and enter the 6-digit code here.</p>
       <button class="btn" id="linkBtn" type="button">Send me a link</button>
-      <div class="log" id="linkLog" aria-live="polite"></div>
+      <form id="codeForm" style="display:flex;gap:8px">
+        <label for="codeIn" class="sub small" hidden>6-digit code</label>
+        <input id="codeIn" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="6-digit code" style="flex:1;min-width:0;min-height:48px;border-radius:14px;border:1px solid var(--line);background:var(--solid);padding:0 14px;font-size:18px;letter-spacing:.12em">
+        <button class="btn alt" type="submit">Link</button>
+      </form>
+      <div class="small sub" id="linkLog" aria-live="polite"></div>
     </div>
 
-    <div id="homeData">
-      <div style="display:flex;flex-direction:column;gap:22px">
-        <div class="hero">
-          <div class="l">
-            <p id="heroLine">Loading today…</p>
-            <button type="button" data-go="tasks">View tasks</button>
-          </div>
-          <div class="ring">
-            <svg width="84" height="84" viewBox="0 0 84 84"><circle cx="42" cy="42" r="34" fill="none" stroke="currentColor" stroke-opacity=".22" stroke-width="7"/><circle id="ringArc" cx="42" cy="42" r="34" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round" stroke-dasharray="213.6" stroke-dashoffset="213.6" transform="rotate(-90 42 42)" style="transition:stroke-dashoffset .6s ease"/></svg>
-            <span id="ringPct">0%</span>
-          </div>
-        </div>
-
-        <div style="display:flex;flex-direction:column;gap:12px">
-          <div class="h"><b>Up next</b><span class="count" id="nextCount">0</span></div>
-          <div class="rail" id="nextRail"></div>
-        </div>
-
-        <div style="display:flex;flex-direction:column;gap:12px">
-          <div class="h"><b>Areas this week</b><span class="count" id="areaCount">0</span></div>
-          <div id="areaList" style="display:flex;flex-direction:column;gap:10px"></div>
-        </div>
-        <button class="ghost small sub" id="syncLine" type="button" style="align-self:center;padding:8px"></button>
-      </div>
+    <div id="todayData" style="display:flex;flex-direction:column;gap:20px">
+      <div id="leftBanner"></div>
+      <div id="hero"></div>
+      <section style="display:flex;flex-direction:column;gap:10px">
+        <h2 class="h2">Coming up <span class="count" id="upCount">0</span></h2>
+        <div class="list" id="upList"></div>
+      </section>
+      <section style="display:flex;flex-direction:column;gap:10px">
+        <h2 class="h2">Areas this week <span class="count" id="areaCount">0</span></h2>
+        <div class="card areas" id="areaList"></div>
+      </section>
+      <button class="ghost tiny sub" id="syncLine" type="button" style="align-self:center;min-height:44px"></button>
     </div>
   </section>
 
   <!-- TASKS -->
   <section class="view" id="v-tasks" hidden>
-    <div class="bar">
-      <button class="round ghost" data-go="home" aria-label="Back to home" style="border:none;background:transparent;-webkit-backdrop-filter:none;backdrop-filter:none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></button>
-      <b id="tasksTitle">Today's tasks</b>
-      <button class="round themeBtn" aria-label="Switch dark and light theme"></button>
+    <div class="bar"><b id="tasksTitle" style="text-align:start">Tasks</b></div>
+    <div class="card qa">
+      <form id="qaForm" autocomplete="off">
+        <label for="qaIn" hidden>Add a task</label>
+        <input id="qaIn" placeholder="Add a task: EE 420 report thu 9pm" enterkeyhint="go">
+        <button class="btn sm" type="submit">Add</button>
+      </form>
+      <div id="qaPreview" hidden></div>
     </div>
     <div class="days" id="days"></div>
     <div class="filters" id="filters"></div>
     <div class="list" id="taskList"></div>
-    <div class="hint" id="taskHint">Tick the box to finish a task. It updates Notion.</div>
+    <div class="hint">Tap a task to open it · swipe right = done · swipe left = tomorrow</div>
   </section>
 
-  <!-- SETUP -->
-  <section class="view" id="v-setup" hidden>
+  <!-- WEEK -->
+  <section class="view" id="v-week" hidden>
     <div class="bar">
-      <button class="round ghost" data-go="home" aria-label="Back to home" style="border:none;background:transparent;-webkit-backdrop-filter:none;backdrop-filter:none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></button>
-      <b>Settings</b>
-      <button class="round themeBtn" aria-label="Switch dark and light theme"></button>
+      <button class="icon ghost" type="button" id="wkPrev" aria-label="Previous week"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>
+      <b id="wkTitle">This week</b>
+      <button class="icon ghost" type="button" id="wkNext" aria-label="Next week"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
     </div>
+    <div class="wk" id="wkList"></div>
+  </section>
 
-    <div class="card panel" id="installCard">
-      <div class="status" id="mode"><i></i><span id="modeText">Checking…</span></div>
-      <ol id="steps"><li>Tap the Share button in Safari</li><li>Choose <b>Add to Home Screen</b></li><li>Open Baraa OS from your Home Screen</li></ol>
+  <!-- INBOX -->
+  <section class="view" id="v-inbox" hidden>
+    <div class="bar"><b style="text-align:start">Inbox</b><span class="tiny sub">KFUPM mail</span></div>
+    <div class="list" id="mailList"></div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section class="view" id="v-settings" hidden>
+    <div class="bar">
+      <button class="icon ghost" type="button" data-go="today" aria-label="Back"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></button>
+      <b>Settings</b><span class="spacer"></span>
     </div>
 
     <div class="card panel">
       <div class="status" id="pushStatus"><i></i><span id="pushText">Notifications: off</span></div>
-      <p>Reminders from your Notion tasks, even when the app is closed.</p>
       <button class="btn" id="pushBtn" type="button">Turn on notifications</button>
-      <button class="btn alt" id="notifBtn" type="button">Send a test notification</button>
-      <div class="log" id="pushLog" aria-live="polite"></div>
+      <button class="linkrow" type="button" data-go="notif"><span>Notification settings</span><span class="sub">›</span></button>
+      <button class="linkrow" type="button" id="testBtn"><span>Send a test notification</span><span class="sub">›</span></button>
+      <div class="small sub" id="pushLog" aria-live="polite"></div>
     </div>
 
     <div class="card panel">
       <div class="status" id="linkStatus"><i></i><span id="linkStatusText">Tasks: not linked</span></div>
-      <p>This iPhone reads your tasks with a private key kept only on this phone.</p>
-      <button class="btn alt" id="unlinkBtn" type="button">Unlink this iPhone</button>
+      <button class="linkrow" type="button" id="codeBtn"><span>Link another iPhone</span><span class="sub">›</span></button>
+      <div id="codeBox" hidden></div>
+      <button class="linkrow" type="button" id="unlinkBtn"><span>Unlink this iPhone</span><span class="sub">›</span></button>
+      <div id="unlinkConfirm" hidden style="display:flex;flex-direction:column;gap:8px">
+        <p>This iPhone stops showing your tasks and stops getting reminders until you link it again.</p>
+        <div class="grid2"><button class="btn" type="button" id="unlinkYes">Unlink</button><button class="btn alt" type="button" id="unlinkNo">Keep linked</button></div>
+      </div>
     </div>
 
     <div class="card panel">
-      <div class="status"><span>Theme</span></div>
+      <div class="status"><span>Appearance</span></div>
       <div class="filters" id="themePick"></div>
+      <div class="toggle"><label for="hijriSw">Show Hijri dates</label><input type="checkbox" class="sw" id="hijriSw"></div>
     </div>
-    <div class="hint">Baraa OS · build 3</div>
+
+    <div class="card panel" id="installCard">
+      <div class="status" id="mode"><i></i><span id="modeText">Checking…</span></div>
+      <ol id="steps"><li>Tap Share in Safari</li><li>Choose <b>Add to Home Screen</b></li><li>Open Baraa OS from the Home Screen</li></ol>
+    </div>
+    <div class="hint">Baraa OS · build 4</div>
   </section>
 
-  <!-- QUICK ACTION SHEET (from a notification) -->
+  <!-- NOTIFICATION SETTINGS -->
+  <section class="view" id="v-notif" hidden>
+    <div class="bar">
+      <button class="icon ghost" type="button" data-go="settings" aria-label="Back"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></button>
+      <b>Notifications</b><span class="spacer"></span>
+    </div>
+    <div class="card panel" id="focusTip" hidden>
+      <div class="status"><span>Let exam reminders through Focus</span></div>
+      <p>iPhone Focus modes can hold Baraa OS reminders. Open Settings → Focus → (each Focus) → Apps → add Baraa OS.</p>
+      <button class="btn alt sm" type="button" id="tipDone">Got it</button>
+    </div>
+    <div class="card panel" id="groupToggles"></div>
+    <div class="card panel">
+      <div class="status"><span>Quiet hours</span></div>
+      <div class="toggle"><label for="quietSw">Hold reminders overnight</label><input type="checkbox" class="sw" id="quietSw"></div>
+      <div style="display:flex;gap:8px;align-items:center" id="quietTimes">
+        <label for="qStart" class="small sub">From</label><select id="qStart"></select>
+        <label for="qEnd" class="small sub">to</label><select id="qEnd"></select>
+      </div>
+      <p>Held reminders are counted in the 7 AM morning brief.</p>
+    </div>
+    <div class="card panel">
+      <div class="toggle"><label for="digestSw">Bundle Personal reminders into the 7 AM brief and 9 PM wrap-up</label><input type="checkbox" class="sw" id="digestSw"></div>
+    </div>
+    <div class="card panel">
+      <div class="status"><span>Mute areas</span></div>
+      <p>Muted areas send no reminders. Their tasks still show in the app.</p>
+      <div class="filters" style="flex-wrap:wrap" id="muteAreas"></div>
+    </div>
+    <div class="small sub" id="prefLog" aria-live="polite" style="text-align:center"></div>
+  </section>
+
+  <!-- TASK SHEET -->
   <section class="view" id="v-sheet" hidden>
     <div class="bar">
-      <button class="round ghost" id="sheetBack" aria-label="Back to home" style="border:none;background:transparent;-webkit-backdrop-filter:none;backdrop-filter:none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></button>
-      <b>Task</b>
-      <span style="width:44px"></span>
+      <button class="icon ghost" type="button" id="sheetBack" aria-label="Back"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></button>
+      <b>Task</b><span class="spacer"></span>
     </div>
-    <div class="card sheet">
-      <div class="chips" id="sheetChips" style="display:flex;gap:6px;flex-wrap:wrap"></div>
-      <h2 id="sheetTitle">Loading…</h2>
-      <div class="sub" id="sheetDate" style="font-size:14px"></div>
-      <div class="choices" id="sheetChoices"></div>
-      <div id="noteBox" hidden>
-        <label for="noteText" class="sub small">Note (saved to Notes in Notion)</label>
-        <textarea id="noteText" rows="3" placeholder="Write a note"></textarea>
-        <div style="display:flex;gap:8px;margin-top:8px">
-          <button class="btn" id="noteSave" type="button" style="flex:1">Save note</button>
-          <button class="btn alt" id="noteCancel" type="button" style="flex:1">Cancel</button>
-        </div>
-      </div>
-      <div class="result" id="sheetResult" hidden>
-        <span class="tick" aria-hidden="true">✓</span>
-        <div><b id="resultTitle"></b><span id="resultSub"></span></div>
-      </div>
-      <div class="err" id="sheetErr" role="alert"></div>
+    <div class="card sheet" id="sheet"></div>
+  </section>
+
+  <!-- REPLAN -->
+  <section class="view" id="v-replan" hidden>
+    <div class="bar">
+      <button class="icon ghost" type="button" data-go="today" aria-label="Back"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></button>
+      <b>Replan</b><span class="tiny sub spacer" id="rpCount" style="text-align:end"></span>
     </div>
+    <div class="card rp" id="rp"></div>
   </section>
 </div>
 
 <nav id="nav" aria-label="Main">
-  <button type="button" data-go="home" aria-label="Home"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg></button>
-  <button type="button" data-go="tasks" aria-label="Tasks"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></button>
-  <span class="slot" aria-hidden="true"></span>
-  <span class="slot" aria-hidden="true"></span>
+  <button type="button" data-go="today"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2"/></svg>Today</button>
+  <button type="button" data-go="tasks"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>Tasks</button>
+  <button type="button" data-go="week"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Week</button>
+  <button type="button" data-go="inbox"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13l2.5-7h11L20 13v6H4z"/><path d="M4 13h5l1 2h4l1-2h5"/></svg>Inbox<span class="nb" id="inboxBadge" hidden></span></button>
 </nav>
-<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"><span id="toastText"></span><button type="button" id="toastUndo" hidden>Undo</button></div>
 
-<script>
-(() => {
-  const SUPABASE_URL = 'https://arfqsuawppydcgwzucjo.supabase.co';
-  const SUPABASE_KEY = 'sb_publishable_m-D8YW8KF5JRgBurjuP3Gw_ANMv04S3';
-  const VAPID_PUBLIC = 'BCe3QDPBXKzd_EIDEnwSIz6TvFT1hwBjXTjSp5K-PNN7oC7cFd0qYDq_JHE9nRPFukSmPXdWw925z4Io142OchM';
-  const API = SUPABASE_URL + '/functions/v1/app-api';
-  const ACTION_URL = SUPABASE_URL + '/functions/v1/task-action';
-  const OFFSET = 3 * 3600 * 1000; // Riyadh
-  const $ = (id) => document.getElementById(id);
-  const store = {
-    get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
-    set(k, v) { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch (e) {} },
-  };
-  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
-
-  /* ---------- theme ---------- */
-  const mq = window.matchMedia('(prefers-color-scheme: dark)');
-  let themePref = store.get('theme') || 'auto';
-  const isDark = () => themePref === 'dark' || (themePref === 'auto' && mq.matches);
-  const SUN = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';
-  const MOON = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>';
-  function applyTheme() {
-    const d = isDark();
-    document.documentElement.dataset.theme = d ? 'dark' : 'light';
-    document.querySelector('meta[name="theme-color"]').content = d ? '#0A0A0A' : '#F4F4F4';
-    document.querySelectorAll('.themeBtn').forEach((b) => { b.innerHTML = d ? SUN : MOON; });
-    $('themePick').innerHTML = [['auto', 'Match iPhone'], ['light', 'Light'], ['dark', 'Dark']]
-      .map(([id, l]) => `<button type="button" class="f${themePref === id ? ' on' : ''}" data-theme-pick="${id}">${l}</button>`).join('');
-    silk.dark = d;
-    if (state.data) render();
-  }
-  document.addEventListener('click', (e) => {
-    const tb = e.target.closest('.themeBtn');
-    if (tb) { themePref = isDark() ? 'light' : 'dark'; store.set('theme', themePref); applyTheme(); }
-    const tp = e.target.closest('[data-theme-pick]');
-    if (tp) { themePref = tp.dataset.themePick; store.set('theme', themePref); applyTheme(); }
-  });
-  mq.addEventListener && mq.addEventListener('change', () => themePref === 'auto' && applyTheme());
-
-  /* ---------- silk background ---------- */
-  const silk = (() => {
-    const cv = $('silk');
-    const gl = cv.getContext('webgl', { antialias: false, premultipliedAlpha: false });
-    const api = { dark: false };
-    if (!gl) return api;
-    const fs = [
-      'precision mediump float;',
-      'uniform vec2 uRes; uniform float uTime; uniform vec3 uBg; uniform vec3 uC0; uniform vec3 uC1; uniform vec3 uC2; uniform vec3 uC3; uniform vec3 uSheen; uniform float uGrain;',
-      'float hash(vec2 p){ return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }',
-      'void main(){',
-      '  vec2 uv = gl_FragCoord.xy / uRes;',
-      '  vec2 p = vec2((uv.x - 0.5) * (uRes.x / uRes.y), uv.y - 0.5);',
-      '  float an = -0.42; p = mat2(cos(an), -sin(an), sin(an), cos(an)) * p;',
-      '  vec3 col = uBg; float t = uTime * 0.32;',
-      '  for (int i = 0; i < 4; i++) {',
-      '    float fi = float(i);',
-      '    vec3 lc = i == 0 ? uC0 : (i == 1 ? uC1 : (i == 2 ? uC2 : uC3));',
-      '    float fr = 2.4 + fi * 0.7;',
-      '    float ph = p.x * fr + t * (1.0 + fi * 0.3) + fi * 2.1;',
-      '    float am = 0.11 + 0.04 * sin(t * 0.7 + fi);',
-      '    float ph2 = ph * 2.3 - t * 1.3 + fi;',
-      '    float w = am * sin(ph) + 0.045 * sin(ph2);',
-      '    float d = p.y - (-0.36 + fi * 0.21 + w);',
-      '    float slope = am * fr * cos(ph) + 0.1 * fr * cos(ph2);',
-      '    float body = smoothstep(-0.015, 0.12, -d);',
-      '    float m = body * clamp(exp(d * 2.6), 0.0, 1.0);',
-      '    float fold = 0.72 + 0.28 * sin(ph * 1.6 + slope * 1.5 + 1.2);',
-      '    col = mix(col, lc * fold, m * 0.9);',
-      '    float edge = exp(-abs(d) * 55.0);',
-      '    float spec = pow(clamp(0.5 + 0.5 * sin(ph * 1.6 + slope * 1.5 - 0.4), 0.0, 1.0), 7.0);',
-      '    col += uSheen * (edge * 0.55 + spec * m * 0.35);',
-      '  }',
-      '  col *= mix(0.9, 1.0, smoothstep(1.1, 0.25, length(uv - 0.5)));',
-      '  col += (hash(gl_FragCoord.xy + fract(uTime) * 91.7) - 0.5) * uGrain;',
-      '  gl_FragColor = vec4(col, 1.0);',
-      '}'].join('\n');
-    const mk = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); return s; };
-    const pr = gl.createProgram();
-    gl.attachShader(pr, mk(gl.VERTEX_SHADER, 'attribute vec2 a; void main(){ gl_Position = vec4(a, 0.0, 1.0); }'));
-    gl.attachShader(pr, mk(gl.FRAGMENT_SHADER, fs));
-    gl.linkProgram(pr);
-    if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) return api;
-    gl.useProgram(pr);
-    gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
-    const loc = gl.getAttribLocation(pr, 'a');
-    gl.enableVertexAttribArray(loc);
-    gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
-    const u = {};
-    ['uRes', 'uTime', 'uBg', 'uC0', 'uC1', 'uC2', 'uC3', 'uSheen', 'uGrain'].forEach((n) => { u[n] = gl.getUniformLocation(pr, n); });
-    const g = (v) => [v, v, v];
-    const size = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-      cv.width = Math.round(innerWidth * dpr); cv.height = Math.round(innerHeight * dpr);
-      gl.viewport(0, 0, cv.width, cv.height);
-    };
-    size(); addEventListener('resize', size);
-    const draw = (time) => {
-      const dk = api.dark;
-      gl.uniform2f(u.uRes, cv.width, cv.height);
-      gl.uniform1f(u.uTime, time);
-      gl.uniform3fv(u.uBg, dk ? g(0.035) : g(0.955));
-      gl.uniform3fv(u.uC0, dk ? g(0.10) : g(0.88));
-      gl.uniform3fv(u.uC1, dk ? g(0.15) : g(0.83));
-      gl.uniform3fv(u.uC2, dk ? g(0.08) : g(0.92));
-      gl.uniform3fv(u.uC3, dk ? g(0.13) : g(0.86));
-      gl.uniform3fv(u.uSheen, dk ? g(0.30) : g(0.22));
-      gl.uniform1f(u.uGrain, dk ? 0.05 : 0.035);
-      gl.drawArrays(gl.TRIANGLES, 0, 3);
-    };
-    const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const t0 = performance.now(); let last = 0;
-    const frame = (ts) => {
-      requestAnimationFrame(frame);
-      if (document.hidden || ts - last < 40) return;
-      last = ts; draw(still ? 14 : (ts - t0) / 1000);
-    };
-    requestAnimationFrame(frame);
-    return api;
-  })();
-
-  /* ---------- dates (Riyadh) ---------- */
-  const DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  const rd = (ms) => new Date(ms + OFFSET); // read with getUTC*
-  const dayKey = (ms) => rd(ms).toISOString().slice(0, 10);
-  const dayStart = (key) => Date.parse(key + 'T00:00:00Z') - OFFSET;
-  const hm = (ms) => { const d = rd(ms); const h = d.getUTCHours(); return `${h % 12 || 12}:${String(d.getUTCMinutes()).padStart(2, '0')} ${h >= 12 ? 'PM' : 'AM'}`; };
-  const shortDay = (key) => { const d = new Date(key + 'T00:00:00Z'); return `${DOW[d.getUTCDay()]} ${d.getUTCDate()} ${MON[d.getUTCMonth()]}`; };
-
-  /* ---------- area colors ---------- */
-  const PAL_L = [['#EEEDFE', '#3C3489', '#534AB7'], ['#E1F5EE', '#085041', '#0F6E56'], ['#FAECE7', '#712B13', '#993C1D'], ['#FAEEDA', '#633806', '#854F0B'], ['#E6F1FB', '#0C447C', '#185FA5'], ['#FBEAF0', '#72243E', '#993556']];
-  const PAL_D = [['#26215C', '#CECBF6', '#AFA9EC'], ['#04342C', '#9FE1CB', '#5DCAA5'], ['#4A1B0C', '#F5C4B3', '#F0997B'], ['#412402', '#FAC775', '#EF9F27'], ['#042C53', '#B5D4F4', '#85B7EB'], ['#4B1528', '#F4C0D1', '#ED93B1']];
-  const areaIdx = {};
-  const color = (area) => {
-    const k = (area || 'Personal').toLowerCase();
-    if (!(k in areaIdx)) {
-      // give each area its own color: number them in name order
-      const names = [...new Set((state.data ? state.data.tasks : []).map((t) => (t.area || 'Personal').toLowerCase()).concat(k))].sort();
-      names.forEach((n, i) => { if (!(n in areaIdx)) areaIdx[n] = i % PAL_L.length; });
-    }
-    const c = (isDark() ? PAL_D : PAL_L)[areaIdx[k]];
-    return { tint: c[0], fg: c[1], strong: c[2] };
-  };
-  const initials = (s) => { const w = String(s || '?').replace(/[^\p{L}\p{N} ]/gu, ' ').trim().split(/\s+/); return (w.length > 1 ? w[0][0] + w[1][0] : (w[0] || '?').slice(0, 2)).toUpperCase(); };
-
-  /* ---------- state ---------- */
-  const state = { view: 'home', day: null, filter: 'all', area: null, data: null, loading: false, busy: new Set() };
-  try { const c = JSON.parse(store.get('cache') || 'null'); if (c && c.tasks) state.data = c; } catch (e) {}
-  let device = store.get('device');
-
-  function go(view) {
-    state.view = view;
-    ['home', 'tasks', 'setup', 'sheet'].forEach((v) => { $('v-' + v).hidden = v !== view; });
-    $('nav').hidden = view === 'sheet';
-    document.querySelectorAll('nav [data-go]').forEach((b) => b.classList.toggle('on', b.dataset.go === view));
-    if (view === 'setup') renderSetup();
-    window.scrollTo(0, 0);
-    render();
-  }
-  document.addEventListener('click', (e) => {
-    const g = e.target.closest('[data-go]');
-    if (g) { if (g.dataset.area !== undefined) state.area = g.dataset.area || null; go(g.dataset.go); }
-  });
-  $('toSetup').addEventListener('click', () => go('setup'));
-
-  const toast = (m) => { const t = $('toast'); t.textContent = m; t.classList.add('on'); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('on'), 2600); };
-
-  /* ---------- data ---------- */
-  async function load(quiet) {
-    if (!device || state.loading) return;
-    state.loading = true;
-    if (!quiet) $('syncLine').innerHTML = '<span class="spin"></span>';
-    try {
-      const res = await fetch(API, { headers: { 'x-device': device } });
-      if (res.status === 401) { device = null; store.set('device', null); store.set('cache', null); state.data = null; render(); return; }
-      const j = await res.json();
-      if (!res.ok) throw new Error(j.error || 'Server error');
-      j.loadedAt = Date.now();
-      state.data = j;
-      store.set('cache', JSON.stringify(j));
-    } catch (e) {
-      if (!quiet) toast("Couldn't refresh. Showing the last saved tasks.");
-    } finally {
-      state.loading = false;
-      render();
-    }
-  }
-  async function setChecked(task, checked) {
-    if (state.busy.has(task.id)) return;
-    state.busy.add(task.id);
-    task.checked = checked; render();
-    try {
-      const res = await fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-device': device }, body: JSON.stringify({ op: 'check', id: task.id, checked }) });
-      const j = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(j.error || 'Something went wrong');
-      store.set('cache', JSON.stringify(state.data));
-      toast(checked ? 'Done · ticked in Notion' : 'Unticked in Notion');
-    } catch (e) {
-      task.checked = !checked;
-      toast(e.message.startsWith("Couldn't") ? e.message : "Couldn't update Notion. Try again.");
-    } finally {
-      state.busy.delete(task.id); render();
-    }
-  }
-
-  /* ---------- render ---------- */
-  function render() {
-    const linked = !!device;
-    $('linkCard').hidden = linked;
-    $('homeData').hidden = !linked && !state.data;
-    if (state.view === 'home') renderHome();
-    if (state.view === 'tasks') renderTasks();
-  }
-
-  function tasksFor(key) {
-    const s = dayStart(key), e = s + 86400000;
-    return (state.data ? state.data.tasks : []).filter((t) => { const ms = Date.parse(t.starts_at); return ms >= s && ms < e; });
-  }
-  const sortTasks = (a, b) => (a.all_day === b.all_day ? Date.parse(a.starts_at) - Date.parse(b.starts_at) : a.all_day ? -1 : 1);
-  function whenText(t) {
-    if (t.all_day) return 'All day';
-    const s = Date.parse(t.starts_at);
-    return hm(s) + (t.ends_at ? ' – ' + hm(Date.parse(t.ends_at)) : '');
-  }
-
-  function renderHome() {
-    const h = rd(Date.now()).getUTCHours();
-    $('greet').textContent = h < 12 ? 'Good morning,' : h < 17 ? 'Good afternoon,' : 'Good evening,';
-    if (!state.data) return;
-    const now = Date.now();
-    const today = dayKey(now);
-    const list = tasksFor(today);
-    const done = list.filter((t) => t.checked).length;
-    const left = list.length - done;
-    const pct = list.length ? Math.round((done / list.length) * 100) : 0;
-    $('ringPct').textContent = pct + '%';
-    $('ringArc').setAttribute('stroke-dashoffset', (213.6 * (1 - pct / 100)).toFixed(1));
-    $('heroLine').textContent = !list.length ? 'Nothing planned for today.'
-      : left === 0 ? 'Everything is done for today.'
-      : pct >= 50 ? `Today is almost done. ${left} left.`
-      : `${left} task${left === 1 ? '' : 's'} left today. Start with the top one.`;
-
-    // up next: unchecked, timed, not finished yet, next 48h
-    const next = state.data.tasks.filter((t) => {
-      if (t.checked) return false;
-      const s = Date.parse(t.starts_at), e = t.ends_at ? Date.parse(t.ends_at) : s;
-      if (t.all_day) return dayKey(s) === today || dayKey(s) === dayKey(now + 86400000);
-      return e >= now && s <= now + 2 * 86400000;
-    }).sort(sortTasks).sort((a, b) => Date.parse(a.starts_at) - Date.parse(b.starts_at)).slice(0, 6);
-    $('nextCount').textContent = next.length;
-    $('nextRail').innerHTML = next.length ? next.map((t) => {
-      const c = color(t.area); const s = Date.parse(t.starts_at);
-      const live = !t.all_day && s <= now;
-      const day = dayKey(s) === today ? 'Today' : 'Tomorrow';
-      return `<button type="button" class="card next" data-go="tasks" data-day="${dayKey(s)}">
-        <span class="tag" style="align-self:flex-start;background:${c.tint};color:${c.fg}">${esc(t.area)}</span>
-        <span class="t">${esc(t.title)}</span>
-        <span class="w">${live ? 'Now · until ' + (t.ends_at ? hm(Date.parse(t.ends_at)) : '') : day + ' · ' + whenText(t)}</span>
-      </button>`;
-    }).join('') : '<span class="empty">Nothing coming up in the next two days.</span>';
-
-    // areas this week (today + 6)
-    const s0 = dayStart(today), s7 = s0 + 7 * 86400000;
-    const week = state.data.tasks.filter((t) => { const ms = Date.parse(t.starts_at); return ms >= s0 && ms < s7; });
-    const by = {};
-    week.forEach((t) => { const k = t.area || 'Personal'; (by[k] = by[k] || { n: 0, d: 0 }); by[k].n++; if (t.checked) by[k].d++; });
-    const areas = Object.entries(by).sort((a, b) => b[1].n - a[1].n);
-    $('areaCount').textContent = areas.length;
-    $('areaList').innerHTML = areas.length ? areas.map(([name, v]) => {
-      const c = color(name); const p = Math.round((v.d / v.n) * 100);
-      return `<button type="button" class="card area" data-go="tasks" data-area="${esc(name)}">
-        <span class="ic" style="background:${c.tint};color:${c.fg}">${esc(initials(name))}</span>
-        <span class="m"><b>${esc(name)}</b><span class="small sub">${v.n - v.d} open · ${v.n} this week</span></span>
-        <span class="mini"><svg width="44" height="44" viewBox="0 0 44 44"><circle cx="22" cy="22" r="18" fill="none" stroke="${c.tint}" stroke-width="4"/><circle cx="22" cy="22" r="18" fill="none" stroke="${c.strong}" stroke-width="4" stroke-linecap="round" stroke-dasharray="113.1" stroke-dashoffset="${(113.1 * (1 - p / 100)).toFixed(1)}" transform="rotate(-90 22 22)"/></svg><span>${p}%</span></span>
-      </button>`;
-    }).join('') : '<span class="empty">No tasks this week.</span>';
-
-    const ago = state.data.loadedAt ? Math.round((Date.now() - state.data.loadedAt) / 60000) : null;
-    if (!state.loading) $('syncLine').textContent = ago == null ? 'Tap to refresh' : `Updated ${ago < 1 ? 'just now' : ago + ' min ago'} · tap to refresh`;
-  }
-
-  // remember which day a tapped card belongs to
-  document.addEventListener('click', (e) => { const d = e.target.closest('[data-day]'); if (d) { state.day = d.dataset.day; state.area = null; go('tasks'); } }, true);
-  $('syncLine').addEventListener('click', () => load());
-
-  function renderTasks() {
-    const now = Date.now(), today = dayKey(now);
-    if (!state.day) state.day = today;
-    const keys = [];
-    for (let i = -3; i <= 10; i++) keys.push(dayKey(dayStart(today) + i * 86400000 + 3600000));
-    $('days').innerHTML = keys.map((k) => {
-      const d = new Date(k + 'T00:00:00Z');
-      const has = tasksFor(k).some((t) => !t.checked);
-      return `<button type="button" class="day${k === state.day ? ' on' : ''}" data-pick-day="${k}" aria-label="${shortDay(k)}">
-        <span>${k === today ? 'Today' : MON[d.getUTCMonth()]}</span><b>${d.getUTCDate()}</b><span>${DOW[d.getUTCDay()]}</span>${has ? '<i></i>' : ''}</button>`;
-    }).join('');
-    const on = $('days').querySelector('.on');
-    if (on && !renderTasks._scrolled) { on.scrollIntoView({ inline: 'center', block: 'nearest' }); renderTasks._scrolled = true; }
-
-    const f = [['all', 'All'], ['done', 'Checked'], ['open', 'Not checked']].map(([id, l]) => `<button type="button" class="f${state.filter === id ? ' on' : ''}" data-filter="${id}">${l}</button>`);
-    if (state.area) f.push(`<button type="button" class="f on x" data-clear-area aria-label="Show all areas">${esc(state.area)} <span aria-hidden="true">✕</span></button>`);
-    $('filters').innerHTML = f.join('');
-
-    $('tasksTitle').textContent = state.day === today ? "Today's tasks" : shortDay(state.day);
-    let list = tasksFor(state.day).sort(sortTasks);
-    if (state.area) list = list.filter((t) => (t.area || 'Personal') === state.area);
-    if (state.filter === 'done') list = list.filter((t) => t.checked);
-    if (state.filter === 'open') list = list.filter((t) => !t.checked);
-
-    if (!state.data) { $('taskList').innerHTML = device ? '<span class="empty"><span class="spin"></span></span>' : '<span class="empty">Link this iPhone from Home to see your tasks.</span>'; return; }
-    $('taskList').innerHTML = list.length ? list.map((t) => {
-      const c = color(t.area);
-      const end = t.ends_at ? Date.parse(t.ends_at) : Date.parse(t.starts_at) + (t.all_day ? 86400000 : 0);
-      const overdue = !t.checked && end < now && ['deadline', 'study', 'writing'].includes(t.group);
-      const type = (t.types || [])[0];
-      return `<div class="card task${t.checked ? ' done' : ''}${state.busy.has(t.id) ? ' busy' : ''}">
-        <button type="button" class="cb" data-check="${t.id}" aria-pressed="${t.checked}" aria-label="${t.checked ? 'Mark as not done' : 'Mark as done'}: ${esc(t.title)}">
-          <span style="${t.checked ? `background:${c.strong};border-color:${c.strong}` : ''}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="${isDark() ? '#0A0A0A' : '#FFFFFF'}" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
-        </button>
-        <div class="body">
-          <div class="chips"><span class="dot" style="background:${c.strong}"></span><span class="tag" style="background:${c.tint};color:${c.fg}">${esc(t.area)}</span>${type ? `<span class="tag" style="background:var(--chip)">${esc(type)}</span>` : ''}</div>
-          <span class="title">${esc(t.title)}</span>
-          <div class="foot"><span class="small sub">${whenText(t)}</span>${t.checked ? '<span class="pill">Done</span>' : overdue ? '<span class="pill o">Overdue</span>' : ''}</div>
-        </div>
-      </div>`;
-    }).join('') : `<span class="empty">${state.filter === 'all' && !state.area ? 'Nothing on this day.' : 'No tasks in this filter.'}</span>`;
-  }
-  document.addEventListener('click', (e) => {
-    const d = e.target.closest('[data-pick-day]'); if (d) { state.day = d.dataset.pickDay; render(); }
-    const f = e.target.closest('[data-filter]'); if (f) { state.filter = f.dataset.filter; render(); }
-    if (e.target.closest('[data-clear-area]')) { state.area = null; render(); }
-    const c = e.target.closest('[data-check]');
-    if (c && state.data) { const t = state.data.tasks.find((x) => x.id === c.dataset.check); if (t) setChecked(t, !t.checked); }
-  });
-
-  /* ---------- linking (pair by notification) ---------- */
-  $('linkBtn').addEventListener('click', async () => {
-    const b = $('linkBtn'); b.disabled = true; $('linkLog').textContent = 'Sending…';
-    try {
-      const res = await fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ op: 'pair_start' }) });
-      const j = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(j.error || 'Something went wrong');
-      $('linkLog').textContent = 'Sent. Tap the "Link this iPhone" notification.';
-    } catch (e) { $('linkLog').textContent = e.message; }
-    finally { setTimeout(() => { b.disabled = false; }, 4000); }
-  });
-  async function redeemPair(t) {
-    history.replaceState(null, '', './');
-    $('linkCard').hidden = false; $('linkLog').textContent = 'Linking…';
-    try {
-      const res = await fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ op: 'pair', t }) });
-      const j = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(j.error || 'Something went wrong');
-      device = j.device; store.set('device', device);
-      toast('This iPhone is linked');
-      await load();
-    } catch (e) { $('linkLog').textContent = e.message; }
-  }
-  $('unlinkBtn').addEventListener('click', async () => {
-    if (!device) return;
-    try { await fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-device': device }, body: JSON.stringify({ op: 'unlink' }) }); } catch (e) {}
-    device = null; store.set('device', null); store.set('cache', null); state.data = null;
-    renderSetup(); toast('Unlinked');
-  });
-
-  /* ---------- setup (install + push) ---------- */
-  let reg = null;
-  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').then((r) => { reg = r; }).catch(() => {});
-  const keyToBytes = (b64) => { const pad = '='.repeat((4 - (b64.length % 4)) % 4); const raw = atob((b64 + pad).replace(/-/g, '+').replace(/_/g, '/')); return Uint8Array.from(raw, (c) => c.charCodeAt(0)); };
-  const pushLog = (m) => { $('pushLog').textContent = m; };
-  let pushOn = false;
-  function renderSetup() {
-    $('modeText').textContent = standalone ? 'Installed on this iPhone' : 'Running in Safari';
-    $('mode').classList.toggle('ok', standalone);
-    $('steps').hidden = standalone;
-    $('pushText').textContent = 'Notifications: ' + (pushOn ? 'on' : 'off');
-    $('pushStatus').classList.toggle('ok', pushOn);
-    $('pushBtn').textContent = pushOn ? 'Re-register this iPhone' : 'Turn on notifications';
-    $('pushBtn').disabled = !standalone; $('notifBtn').disabled = !standalone;
-    $('linkStatusText').textContent = 'Tasks: ' + (device ? 'linked' : 'not linked');
-    $('linkStatus').classList.toggle('ok', !!device);
-    $('unlinkBtn').hidden = !device;
-  }
-  if ('serviceWorker' in navigator && 'PushManager' in window) {
-    navigator.serviceWorker.ready.then((r) => r.pushManager.getSubscription()).then((s) => { pushOn = !!s; renderSetup(); if (!s && standalone && !device) $('linkText').textContent = 'First turn on notifications in Settings (tap BK), then come back here.'; }).catch(() => {});
-  }
-  $('pushBtn').addEventListener('click', async () => {
-    try {
-      if (!('PushManager' in window)) { pushLog('Open the app from the Home Screen first (iOS 16.4 or later).'); return; }
-      const perm = await Notification.requestPermission();
-      if (perm !== 'granted') { pushLog('Notifications are blocked. Allow them in Settings → Notifications → Baraa OS.'); return; }
-      pushLog('Registering this iPhone…');
-      const r = await navigator.serviceWorker.ready;
-      const sub = (await r.pushManager.getSubscription()) || await r.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: keyToBytes(VAPID_PUBLIC) });
-      const j = sub.toJSON();
-      const res = await fetch(SUPABASE_URL + '/rest/v1/push_subscriptions', { method: 'POST', headers: { 'Content-Type': 'application/json', apikey: SUPABASE_KEY, Prefer: 'return=minimal' }, body: JSON.stringify({ endpoint: j.endpoint, p256dh: j.keys.p256dh, auth: j.keys.auth, user_agent: navigator.userAgent.slice(0, 200) }) });
-      if (!res.ok && res.status !== 409) throw new Error('Server said ' + res.status);
-      pushOn = true; renderSetup();
-      pushLog('Done. Reminders will arrive on their own.');
-      $('linkText').textContent = "We'll send a link to this iPhone as a notification. Tap it and your Notion tasks appear here.";
-    } catch (e) { pushLog("Couldn't register: " + e.message); }
-  });
-  $('notifBtn').addEventListener('click', async () => {
-    if (!('Notification' in window)) { pushLog('This iOS version does not support web notifications.'); return; }
-    const perm = await Notification.requestPermission();
-    if (perm !== 'granted') { pushLog('Notifications are blocked. Allow them in Settings → Notifications → Baraa OS.'); return; }
-    const r = reg || await navigator.serviceWorker.ready;
-    await r.showNotification('Test from Baraa OS', { body: 'Notifications are working on this iPhone.', icon: 'icons/icon-192.png' });
-    pushLog('Sent. If nothing showed, check Focus mode and Settings → Notifications → Baraa OS.');
-  });
-
-  /* ---------- quick-action sheet (?t=) ---------- */
-  function openSheet(token) {
-    go('sheet');
-    $('sheetBack').addEventListener('click', () => { history.replaceState(null, '', './'); go('home'); load(true); });
-    const showResult = (r) => { $('sheetChoices').hidden = true; $('noteBox').hidden = true; $('resultTitle').textContent = r.title; $('resultSub').textContent = r.sub; $('sheetResult').hidden = false; };
-    const renderTask = (task) => {
-      $('sheetTitle').textContent = task.title;
-      $('sheetDate').textContent = task.dateText;
-      $('sheetTitle').style.textDecoration = task.checked ? 'line-through' : 'none';
-      const c = color(task.area);
-      const chips = [task.area].concat(task.types || []).filter((x, i, a) => x && a.indexOf(x) === i);
-      $('sheetChips').innerHTML = chips.map((x, i) => `<span class="tag" style="${i === 0 ? `background:${c.tint};color:${c.fg}` : 'background:var(--chip)'}">${esc(x)}</span>`).join('');
-    };
-    async function act(action, note) {
-      $('sheetErr').textContent = '';
-      const btns = document.querySelectorAll('#sheetChoices button, #noteSave');
-      btns.forEach((b) => (b.disabled = true));
-      try {
-        const res = await fetch(ACTION_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ t: token, action, note }) });
-        const j = await res.json();
-        if (!res.ok) throw new Error(j.error || 'Something went wrong. Try again.');
-        renderTask(j.task); showResult(j.result);
-      } catch (e) { $('sheetErr').textContent = e.message; }
-      finally { btns.forEach((b) => (b.disabled = false)); }
-    }
-    fetch(ACTION_URL + '?t=' + encodeURIComponent(token)).then((r) => r.json().then((j) => ({ ok: r.ok, j }))).then(({ ok, j }) => {
-      if (!ok) { $('sheetTitle').textContent = 'Can’t open this task'; $('sheetErr').textContent = j.error; return; }
-      renderTask(j.task);
-      if (j.task.checked) { showResult({ title: 'Already done', sub: 'Check is ticked in Notion' }); return; }
-      j.choices.forEach((c, i) => {
-        const b = document.createElement('button');
-        b.type = 'button'; b.className = 'btn' + (i > 0 ? ' alt' : ''); b.textContent = c.label;
-        b.addEventListener('click', () => {
-          if (c.id === 'note') { $('sheetChoices').hidden = true; $('noteBox').hidden = false; $('noteText').focus(); }
-          else act(c.id);
-        });
-        $('sheetChoices').appendChild(b);
-      });
-    }).catch(() => { $('sheetErr').textContent = 'No connection. Check your internet and reopen the notification.'; });
-    $('noteSave').addEventListener('click', () => { const n = $('noteText').value.trim(); if (!n) { $('sheetErr').textContent = 'Write a note first.'; return; } act('note', n); });
-    $('noteText').addEventListener('input', () => { $('sheetErr').textContent = ''; });
-    $('noteCancel').addEventListener('click', () => { $('noteBox').hidden = true; $('sheetChoices').hidden = false; $('sheetErr').textContent = ''; });
-  }
-
-  /* ---------- start ---------- */
-  applyTheme();
-  const q = new URLSearchParams(location.search);
-  if (q.get('t')) openSheet(q.get('t'));
-  else {
-    go('home');
-    if (q.get('pair')) redeemPair(q.get('pair'));
-    else load(!!state.data);
-  }
-  document.addEventListener('visibilitychange', () => { if (!document.hidden && state.view !== 'sheet') load(true); });
-  setInterval(() => { if (!document.hidden && state.view === 'home') renderHome(); }, 60000);
-})();
-</script>
+<script src="app.js"></script>
 </body>
 </html>
